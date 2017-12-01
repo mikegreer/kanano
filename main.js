@@ -46,6 +46,26 @@ engine.world.gravity.scale = 0;
     EVENTS
 */
 
+let forcesToApply = [];
+
+var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+var hitA = Bodies.circle(400, 400, 30, {float: true, isSensor: true});
+
+var bot = Bodies.rectangle(200, 570, 60, 40);
+
+World.add(world, [ground, bot, hitA]);
+
+Engine.run(engine);
+Render.run(render);
+
+Body.applyForce(bot, {
+    x: bot.position.x-10,
+    y: bot.position.y
+}, {
+    x: 0.02,
+    y: -0.05
+});
+
 // Apply custom gravity
 Events.on(engine, 'beforeUpdate', function() {
     var bodies = Composite.allBodies(engine.world);
@@ -63,10 +83,12 @@ Events.on(engine, 'beforeUpdate', function() {
             body.force.y += body.mass * 0.001;
         }
     }
-});
 
-Events.on(mouseConstraint, 'enddrag', function(event) {
-    Matter.Body.setVelocity(event.body, {x: 0, y: 0});
+    // Apply the force events
+    while (forcesToApply.length > 0) {
+        let aux = forcesToApply.shift();
+        Body.applyForce(aux[0], aux[1], aux[2]);
+    }
 });
 
 var ground = Bodies.rectangle(400, 610, 810, 60, {
@@ -138,24 +160,30 @@ render.options.wireframes = false;
 //     Bodies.rectangle(600, 460, 80, 80)
 // ]);
 
+Events.on(engine, 'collisionStart', event => {
+    var pairs = event.pairs;
 
+    console.log(event);
 
+    for (var i = 0, j = pairs.length; i != j; ++i) {
+        var pair = pairs[i];
 
-
-Body.applyForce(bot, {
-    x: bot.position.x-10,
-    y: bot.position.y
-}, {
-    x: 0.02,
-    y: -0.05
+        if (pair.bodyB === bot) {
+            if (pair.bodyA === hitA) {
+                forcesToApply.push([
+                    bot, {
+                        x: bot.position.x - ((bot.position.x - hitA.position.x) / 2),
+                        y: bot.position.y - ((bot.position.y - hitA.position.y) / 2)
+                    }, {
+                        x: 0,
+                        y: -0.1
+                    }
+                ]);
+            }
+        }
+    }
 });
-// var ypos = 100;
-// var dy = 2;
-// Events.on(engine, 'beforeUpdate', function(event) {
-//     Body.setPosition(obstacle, { x:350, y:ypos});
-//     ypos += dy;
-//     if(ypos > 530){
-//         ypos = 530;
-//         dy *= -1;
-//     }
-// });
+
+Events.on(mouseConstraint, 'enddrag', function(event) {
+    Matter.Body.setVelocity(event.body, {x: 0, y: 0});
+});
