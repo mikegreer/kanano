@@ -43,6 +43,26 @@ engine.world.gravity.scale = 0;
     EVENTS
 */
 
+let forcesToApply = [];
+
+var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+var hitA = Bodies.circle(400, 400, 30, {float: true, isSensor: true});
+
+var bot = Bodies.rectangle(200, 570, 60, 40);
+
+World.add(world, [ground, bot, hitA]);
+
+Engine.run(engine);
+Render.run(render);
+
+Body.applyForce(bot, {
+    x: bot.position.x-10,
+    y: bot.position.y
+}, {
+    x: 0.02,
+    y: -0.05
+});
+
 // Apply custom gravity
 Events.on(engine, 'beforeUpdate', function() {
     var bodies = Composite.allBodies(engine.world);
@@ -60,58 +80,38 @@ Events.on(engine, 'beforeUpdate', function() {
             body.force.y += body.mass * 0.001;
         }
     }
+
+    // Apply the force events
+    while (forcesToApply.length > 0) {
+        let aux = forcesToApply.shift();
+        Body.applyForce(aux[0], aux[1], aux[2]);
+    }
+});
+
+Events.on(engine, 'collisionStart', event => {
+    var pairs = event.pairs;
+
+    console.log(event);
+
+    for (var i = 0, j = pairs.length; i != j; ++i) {
+        var pair = pairs[i];
+
+        if (pair.bodyB === bot) {
+            if (pair.bodyA === hitA) {
+                forcesToApply.push([
+                    bot, {
+                        x: bot.position.x - ((bot.position.x - hitA.position.x) / 2),
+                        y: bot.position.y - ((bot.position.y - hitA.position.y) / 2)
+                    }, {
+                        x: 0,
+                        y: -0.1
+                    }
+                ]);
+            }
+        }
+    }
 });
 
 Events.on(mouseConstraint, 'enddrag', function(event) {
     Matter.Body.setVelocity(event.body, {x: 0, y: 0});
 });
-
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
-
-// var boxA = Bodies.rectangle(400, 200, 80, 80);
-// var boxB = Bodies.rectangle(450, 50, 80, 80);
-// var obstacle = Bodies.rectangle(400, 210, 90, 90, { isStatic: true });
-// var car1 = Composites.car(200, 300, 90, 10, 40);
-// var car2 = Composites.car(100, 200, 90, 20, 50);
-
-
-// var comp = Composite.create();
-// Composite.add(comp, boxA);
-// Composite.add(comp, boxB);
-// Composites.chain(comp, 0.5, 0, -0.5, 0, { stiffness: 0.8, length: 50, render: { type: 'line' }});
-
-var bot = Bodies.rectangle(200, 570, 60, 40);
-
-World.add(world, [ground, bot, hitA]);
-// var stack = Composites.stack(100, 0, 10, 8, 10, 10, function(x, y) {
-//     return Bodies.circle(x, y, Common.random(15, 30), { restitution: 0.6, friction: 0.1 });
-// });
-
-// World.add(world, [
-//     stack,
-//     Bodies.polygon(200, 460, 3, 60),
-//     Bodies.polygon(400, 460, 5, 60),
-//     Bodies.rectangle(600, 460, 80, 80)
-// ]);
-
-Engine.run(engine);
-Render.run(render);
-
-Body.applyForce(bot, {
-    x: bot.position.x-10,
-    y: bot.position.y
-}, {
-    x: 0.02,
-    y: -0.05
-});
-// var ypos = 100;
-// var dy = 2;
-// Events.on(engine, 'beforeUpdate', function(event) {
-//     Body.setPosition(obstacle, { x:350, y:ypos});
-//     ypos += dy;
-//     if(ypos > 530){
-//         ypos = 530;
-//         dy *= -1;
-//     }
-// });
