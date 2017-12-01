@@ -55,19 +55,10 @@ engine.world.gravity.scale = 0;
 let forcesToApply = [];
 let resetBot = true;
 
-var ground = Bodies.rectangle(288 + renderOffset, 610, 160, 60, { isStatic: true });
-var respawnGround = Bodies.rectangle(400 + renderOffset, 800, 1060, 60, { isStatic: true });
+var ground = Bodies.rectangle(285 + renderOffset, 610, 160, 60, { isStatic: true });
+var respawnGround = Bodies.rectangle(400 + renderOffset, 800, 10000, 60, { isStatic: true });
 
-var bot = Bodies.circle(288 + renderOffset, 570, 25, {
-    render: {
-        sprite: {
-            texture: './img/kanano.png',
-            xScale: 0.9,
-            yScale: 0.9
-        }
-    } 
-});
-
+var bot;
 var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
 
 World.add(world, [ground, hitA, respawnGround]);
@@ -108,7 +99,7 @@ Events.on(engine, 'beforeUpdate', function() {
             Matter.Composite.remove(world, bot);
         }
 
-        var bot = Bodies.circle(288 + renderOffset, 570, 25, {
+        bot = Bodies.circle(288 + renderOffset, 570, 25, {
             render: {
                 sprite: {
                     texture: './img/kanano.png',
@@ -118,7 +109,7 @@ Events.on(engine, 'beforeUpdate', function() {
             } 
         });
 
-
+        
         World.add(world, [bot]);
 
         // Matter.Body.setVelocity(bot, {x: 0, y: 0});
