@@ -22,6 +22,9 @@ element: document.body,
 engine: engine
 });
 
+Engine.run(engine);
+Render.run(render);
+
 var mouse = Mouse.create(render.canvas),
 mouseConstraint = MouseConstraint.create(engine, {
     mouse: mouse,
@@ -66,7 +69,9 @@ Events.on(mouseConstraint, 'enddrag', function(event) {
     Matter.Body.setVelocity(event.body, {x: 0, y: 0});
 });
 
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+var ground = Bodies.rectangle(400, 610, 810, 60, {
+    isStatic: true,
+});
 var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
 
 // var boxA = Bodies.rectangle(400, 200, 80, 80);
@@ -81,9 +86,47 @@ var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
 // Composite.add(comp, boxB);
 // Composites.chain(comp, 0.5, 0, -0.5, 0, { stiffness: 0.8, length: 50, render: { type: 'line' }});
 
-var bot = Bodies.rectangle(200, 570, 60, 40);
+var bot = Bodies.rectangle(200, 570, 60, 40, {
+    render: {
+        sprite: {
+            strokeStyle: '#C44D58',
+            fillStyle: 'transparent',
+            lineWidth: 1
+        }
+    }
+});
 
-World.add(world, [ground, bot, hitA]);
+var bot2 = Bodies.circle(200, 240, 30, {
+    render: {
+        strokeStyle: '#C44D58',
+        fillStyle: '#C44D58',
+        lineWidth: 1
+    }
+})
+
+World.add(world, [ground, bot, hitA, bot2]);
+
+
+//Shelves
+World.add(world, [
+    Bodies.rectangle(150, 60, 150, 13, { isStatic: true })
+]);
+
+World.add(world, [
+    Bodies.rectangle(350, 30, 150, 13, { isStatic: true })
+]);
+
+World.add(world, [
+    Bodies.rectangle(350, 90, 150, 13, { isStatic: true })
+]);
+
+World.add(world, [
+    Bodies.rectangle(350, 180, 150, 13, { isStatic: true })
+]);
+
+
+
+render.options.wireframes = false;
 // var stack = Composites.stack(100, 0, 10, 8, 10, 10, function(x, y) {
 //     return Bodies.circle(x, y, Common.random(15, 30), { restitution: 0.6, friction: 0.1 });
 // });
@@ -95,8 +138,9 @@ World.add(world, [ground, bot, hitA]);
 //     Bodies.rectangle(600, 460, 80, 80)
 // ]);
 
-Engine.run(engine);
-Render.run(render);
+
+
+
 
 Body.applyForce(bot, {
     x: bot.position.x-10,
