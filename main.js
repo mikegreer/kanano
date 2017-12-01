@@ -1,4 +1,4 @@
-// module aliases
+// Module aliases
 var Engine = Matter.Engine,
 Render = Matter.Render,
 World = Matter.World,
@@ -12,19 +12,63 @@ Vector = Matter.Vector,
 MouseConstraint = Matter.MouseConstraint;
 Mouse = Matter.Mouse;
 
-// create an engine
+// Create an engine
 var engine = Engine.create();
 var world = engine.world;
 
-// create a renderer
+// Create a renderer
 var render = Render.create({
 element: document.body,
 engine: engine
 });
 
-// create two boxes and a ground
+var mouse = Mouse.create(render.canvas),
+mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+        stiffness: 1,
+        render: {
+            visible: false
+        }
+    }
+});
+
+World.add(world, mouseConstraint);
+render.mouse = mouse;
+
+// Suspend normal gravity
+engine.world.gravity.scale = 0;
+
+/**
+    EVENTS
+*/
+
+// Apply custom gravity
+Events.on(engine, 'beforeUpdate', function() {
+    var bodies = Composite.allBodies(engine.world);
+    for (var i = 0; i < bodies.length; i++) {
+        var body = bodies[i];
+
+        if (body.float) {
+            // Suspend gravity
+            body.force.x = 0;
+            body.force.y = 0;
+            body.mass = 0.001;
+            continue;
+        } else {
+            // Apply normal gravity
+            body.force.y += body.mass * 0.001;
+        }
+    }
+});
+
+Events.on(mouseConstraint, 'enddrag', function(event) {
+    Matter.Body.setVelocity(event.body, {x: 0, y: 0});
+});
+
 var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-var hitA = Bodies.circle(100, 200, 30, {isStatic: true, isSensor: true});
+var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
+
 // var boxA = Bodies.rectangle(400, 200, 80, 80);
 // var boxB = Bodies.rectangle(450, 50, 80, 80);
 // var obstacle = Bodies.rectangle(400, 210, 90, 90, { isStatic: true });
@@ -50,26 +94,10 @@ World.add(world, [ground, bot, hitA]);
 //     Bodies.polygon(400, 460, 5, 60),
 //     Bodies.rectangle(600, 460, 80, 80)
 // ]);
-// run the engine
-
-var mouse = Mouse.create(render.canvas),
-mouseConstraint = MouseConstraint.create(engine, {
-    mouse: mouse,
-    constraint: {
-        stiffness: 0.2,
-        render: {
-            visible: false
-        }
-    }
-});
-World.add(world, mouseConstraint);
-render.mouse = mouse;
 
 Engine.run(engine);
-// run the renderer
 Render.run(render);
 
-// Body.applyForce(bot, Vector.create(bot.position.x - 10, bot.position.y-20), Vector.create(0.01, 0.01));
 Body.applyForce(bot, {
     x: bot.position.x-10,
     y: bot.position.y
