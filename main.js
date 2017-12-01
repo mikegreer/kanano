@@ -71,9 +71,34 @@ var banner = Bodies.rectangle(1050, 80, 100, 60, {
 });
 
 var bot;
-var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
+// var hitA = ;
 
-World.add(world, [ground, hitA, respawnGround, banner]);
+var hitCircles = [
+    Bodies.circle(50, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-left.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(100, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-up.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(150, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-right.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(200, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-down.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(250, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-left.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(300, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-up.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(350, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-right.png', xScale: 0.5, yScale: 0.5}}}),
+    Bodies.circle(400, 50, 30, {float: true, isSensor: true, render: {sprite: {texture: './img/force-down.png', xScale: 0.5, yScale: 0.5}}})
+];
+var moveCircles = [
+    {x: -0.1, y: 0},
+    {x: 0, y: -0.1},
+    {x: 0.1, y: 0},
+    {x: 0, y: 0.1},
+    {x: -0.1, y: 0},
+    {x: 0, y: -0.1},
+    {x: 0.1, y: 0},
+    {x: 0, y: 0.1}
+];
+
+World.add(world, [ground, respawnGround]);
+
+hitCircles.forEach(elem => {
+    World.add(world, [elem]);
+});
 
 Engine.run(engine);
 Render.run(render);
@@ -216,20 +241,29 @@ Events.on(engine, 'collisionStart', event => {
         var pair = pairs[i];
 
         if (pair.bodyB === bot) {
-            if (pair.bodyA === hitA) {
-                forcesToApply.push([
-                    bot, {
-                        x: bot.position.x - ((bot.position.x - hitA.position.x) / 2),
-                        y: bot.position.y - ((bot.position.y - hitA.position.y) / 2)
-                    }, {
-                        x: 0.01,
-                        y: -0.1
-                    }
-                ]);
-            }
-            
             if (respawnGround == pair.bodyA) {
                 resetBot = true;
+                return;
+            }
+
+            let aux = hitCircles.find(elem => (elem === pair.bodyA));
+
+            if (aux) {
+                let index = hitCircles.indexOf(pair.bodyA);
+                
+                if (index < 0) {
+                    return;
+                }
+
+                forcesToApply.push([
+                    bot, {
+                        x: bot.position.x - ((bot.position.x - pair.bodyA.position.x) / 2),
+                        y: bot.position.y - ((bot.position.y - pair.bodyA.position.y) / 2)
+                    }, {
+                        x: moveCircles[index].x,
+                        y: moveCircles[index].y
+                    }
+                ]);
             }
         }
     }
