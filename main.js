@@ -47,9 +47,10 @@ engine.world.gravity.scale = 0;
 */
 
 let forcesToApply = [];
+let resetBot = true;
 
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
+var ground = Bodies.rectangle(400, 610, 160, 60, { isStatic: true });
+var respawnGround = Bodies.rectangle(400, 800, 1060, 60, { isStatic: true });
 
 var bot = Bodies.circle(200, 570, 25, {
     render: {
@@ -61,21 +62,16 @@ var bot = Bodies.circle(200, 570, 25, {
     } 
 });
 
-World.add(world, [ground, bot, hitA]);
+var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
+
+World.add(world, [ground, hitA, respawnGround]);
 
 Engine.run(engine);
 Render.run(render);
 
-Body.applyForce(bot, {
-    x: bot.position.x-10,
-    y: bot.position.y
-}, {
-    x: 0.02,
-    y: -0.05
-});
-
 // Apply custom gravity
 Events.on(engine, 'beforeUpdate', function() {
+    // Drag & drop
     var bodies = Composite.allBodies(engine.world);
     for (var i = 0; i < bodies.length; i++) {
         var body = bodies[i];
@@ -97,37 +93,39 @@ Events.on(engine, 'beforeUpdate', function() {
         let aux = forcesToApply.shift();
         Body.applyForce(aux[0], aux[1], aux[2]);
     }
+
+    // Respawn
+    if (resetBot) {
+        resetBot = false;
+
+        if (bot) {
+            Matter.Composite.remove(world, bot);
+        }
+
+        var bot = Bodies.circle(400, 570, 25, {
+            render: {
+                sprite: {
+                    texture: './img/kanano.png',
+                    xScale: 0.9,
+                    yScale: 0.9
+                }
+            } 
+        });
+
+
+        World.add(world, [bot]);
+
+        // Matter.Body.setVelocity(bot, {x: 0, y: 0});
+
+        Body.applyForce(bot, {
+            x: bot.position.x,
+            y: bot.position.y
+        }, {
+            x: 0.0,
+            y: -0.007
+        });
+    }
 });
-
-var ground = Bodies.rectangle(400, 610, 810, 60, {
-    isStatic: true,
-});
-
-// var boxA = Bodies.rectangle(400, 200, 80, 80);
-// var boxB = Bodies.rectangle(450, 50, 80, 80);
-// var obstacle = Bodies.rectangle(400, 210, 90, 90, { isStatic: true });
-// var car1 = Composites.car(200, 300, 90, 10, 40);
-// var car2 = Composites.car(100, 200, 90, 20, 50);
-
-
-// var comp = Composite.create();
-// Composite.add(comp, boxA);
-// Composite.add(comp, boxB);
-// Composites.chain(comp, 0.5, 0, -0.5, 0, { stiffness: 0.8, length: 50, render: { type: 'line' }});
-
-// var bot = Bodies.rectangle(200, 570, 60, 40, {
-//     render: {
-//         sprite: {
-//             strokeStyle: '#C44D58',
-//             fillStyle: 'transparent',
-//             lineWidth: 1
-//         }
-//     }
-// });
-
-// World.add(world, [ground, bot, hitA]);
-World.add(world, [ground, hitA]);
-
 
 //Shelves
 var shelfHeight = 10;
@@ -197,24 +195,10 @@ shelves.forEach(shelf => {
     ]);
 });
 
-
-
 render.options.wireframes = false;
-// var stack = Composites.stack(100, 0, 10, 8, 10, 10, function(x, y) {
-//     return Bodies.circle(x, y, Common.random(15, 30), { restitution: 0.6, friction: 0.1 });
-// });
-
-// World.add(world, [
-//     stack,
-//     Bodies.polygon(200, 460, 3, 60),
-//     Bodies.polygon(400, 460, 5, 60),
-//     Bodies.rectangle(600, 460, 80, 80)
-// ]);
 
 Events.on(engine, 'collisionStart', event => {
     var pairs = event.pairs;
-
-    console.log(event);
 
     for (var i = 0, j = pairs.length; i != j; ++i) {
         var pair = pairs[i];
@@ -226,10 +210,14 @@ Events.on(engine, 'collisionStart', event => {
                         x: bot.position.x - ((bot.position.x - hitA.position.x) / 2),
                         y: bot.position.y - ((bot.position.y - hitA.position.y) / 2)
                     }, {
-                        x: 0,
+                        x: 0.01,
                         y: -0.1
                     }
                 ]);
+            }
+            
+            if (respawnGround == pair.bodyA) {
+                resetBot = true;
             }
         }
     }
