@@ -11,7 +11,8 @@ Events = Matter.Events,
 Vector = Matter.Vector,
 MouseConstraint = Matter.MouseConstraint,
 Mouse = Matter.Mouse,
-renderOffset;
+renderOffsetX,
+renderOffsetY;
 
 // Create an engine
 var engine = Engine.create();
@@ -39,7 +40,8 @@ mouseConstraint = MouseConstraint.create(engine, {
 
 render.canvas.height = document.body.scrollHeight;
 render.canvas.width = document.body.scrollWidth;
-renderOffset = document.body.scrollWidth / 4;
+renderOffsetX = document.body.scrollWidth / 4;
+renderOffsetY = document.body.scrollHeight / 20;
 
 
 World.add(world, mouseConstraint);
@@ -55,13 +57,23 @@ engine.world.gravity.scale = 0;
 let forcesToApply = [];
 let resetBot = true;
 
-var ground = Bodies.rectangle(285 + renderOffset, 610, 160, 60, { isStatic: true });
-var respawnGround = Bodies.rectangle(400 + renderOffset, 800, 10000, 60, { isStatic: true });
+var ground = Bodies.rectangle(285 + renderOffsetX, 610 + renderOffsetY, 160, 60, { isStatic: true });
+var respawnGround = Bodies.rectangle(400 + renderOffsetX, 800 + renderOffsetY, 10000, 60, { isStatic: true });
+var banner = Bodies.rectangle(1050, 80, 100, 60, {
+    isStatic: true,
+    render: {
+        sprite: {
+            texture: './img/stem-sign.png',
+            xScale: 0.8,
+            yScale: 0.8
+        }
+    } 
+});
 
 var bot;
 var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
 
-World.add(world, [ground, hitA, respawnGround]);
+World.add(world, [ground, hitA, respawnGround, banner]);
 
 Engine.run(engine);
 Render.run(render);
@@ -99,7 +111,7 @@ Events.on(engine, 'beforeUpdate', function() {
             Matter.Composite.remove(world, bot);
         }
 
-        bot = Bodies.circle(288 + renderOffset, 570, 25, {
+        bot = Bodies.circle(288 + renderOffsetX, 570 + renderOffsetY, 25, {
             render: {
                 sprite: {
                     texture: './img/kanano.png',
@@ -128,20 +140,20 @@ Events.on(engine, 'beforeUpdate', function() {
 var shelfHeight = 10;
 var shelves = [
     {
-        x: 180 + renderOffset,
-        y: 390
+        x: 130 + renderOffsetX,
+        y: 440 + renderOffsetY
     },
     {
-        x: 400 + renderOffset,
-        y: 380
+        x: 450 + renderOffsetX,
+        y: 440 + renderOffsetY
     },
     {
-        x: 180 + renderOffset,
-        y: 150
+        x: 130 + renderOffsetX,
+        y: 200 + renderOffsetY
     },
     {
-        x: 400 + renderOffset,
-        y: 150
+        x: 450 + renderOffsetX,
+        y: 200 + renderOffsetY
     }
 ];
 
@@ -162,6 +174,7 @@ shelves.forEach(shelf => {
         }),
         //box
         Bodies.rectangle(shelf.x - 30, (shelf.y - shelfHeight), 50, 50, {
+            mass: 0.1,
             render: {
                 sprite: {
                     texture: './img/pi.png',
@@ -171,6 +184,7 @@ shelves.forEach(shelf => {
             } 
         }),
         Bodies.rectangle(shelf.x + 30, (shelf.y - shelfHeight), 50, 50, {
+            mass: 0.1,
             render: {
                 sprite: {
                     texture: './img/piper.png',
@@ -181,6 +195,7 @@ shelves.forEach(shelf => {
         }),
         // top of the box triangle
         Bodies.rectangle(shelf.x, (shelf.y - shelfHeight - 80), 50, 50, {
+            mass: 0.1,
             render: {
                 sprite: {
                     texture: './img/sam.png',
