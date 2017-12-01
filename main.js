@@ -2,15 +2,16 @@
 var Engine = Matter.Engine,
 Render = Matter.Render,
 World = Matter.World,
-Bodies = Matter.Bodies;
+Bodies = Matter.Bodies,
 Body = Matter.Body,
 Common = Matter.Common,
 Composite = Matter.Composite,
 Composites = Matter.Composites,
 Events = Matter.Events,
 Vector = Matter.Vector,
-MouseConstraint = Matter.MouseConstraint;
-Mouse = Matter.Mouse;
+MouseConstraint = Matter.MouseConstraint,
+Mouse = Matter.Mouse,
+renderOffset;
 
 // Create an engine
 var engine = Engine.create();
@@ -36,6 +37,11 @@ mouseConstraint = MouseConstraint.create(engine, {
     }
 });
 
+render.canvas.height = document.body.scrollHeight;
+render.canvas.width = document.body.scrollWidth;
+renderOffset = document.body.scrollWidth / 4;
+
+
 World.add(world, mouseConstraint);
 render.mouse = mouse;
 
@@ -49,10 +55,10 @@ engine.world.gravity.scale = 0;
 let forcesToApply = [];
 let resetBot = true;
 
-var ground = Bodies.rectangle(400, 610, 160, 60, { isStatic: true });
-var respawnGround = Bodies.rectangle(400, 800, 1060, 60, { isStatic: true });
+var ground = Bodies.rectangle(288 + renderOffset, 610, 160, 60, { isStatic: true });
+var respawnGround = Bodies.rectangle(400 + renderOffset, 800, 1060, 60, { isStatic: true });
 
-var bot = Bodies.circle(200, 570, 25, {
+var bot = Bodies.circle(288 + renderOffset, 570, 25, {
     render: {
         sprite: {
             texture: './img/kanano.png',
@@ -102,7 +108,7 @@ Events.on(engine, 'beforeUpdate', function() {
             Matter.Composite.remove(world, bot);
         }
 
-        var bot = Bodies.circle(400, 570, 25, {
+        var bot = Bodies.circle(288 + renderOffset, 570, 25, {
             render: {
                 sprite: {
                     texture: './img/kanano.png',
@@ -131,19 +137,19 @@ Events.on(engine, 'beforeUpdate', function() {
 var shelfHeight = 10;
 var shelves = [
     {
-        x: 180,
+        x: 180 + renderOffset,
         y: 390
     },
     {
-        x: 400,
+        x: 400 + renderOffset,
         y: 380
     },
     {
-        x: 180,
+        x: 180 + renderOffset,
         y: 150
     },
     {
-        x: 400,
+        x: 400 + renderOffset,
         y: 150
     }
 ];
