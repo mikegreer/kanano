@@ -49,9 +49,17 @@ engine.world.gravity.scale = 0;
 let forcesToApply = [];
 
 var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-var hitA = Bodies.circle(400, 400, 30, {float: true, isSensor: true});
+var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
 
-var bot = Bodies.rectangle(200, 570, 60, 40);
+var bot = Bodies.circle(200, 570, 25, {
+    render: {
+        sprite: {
+            texture: './img/kanano.png',
+            xScale: 0.9,
+            yScale: 0.9
+        }
+    } 
+});
 
 World.add(world, [ground, bot, hitA]);
 
@@ -94,7 +102,6 @@ Events.on(engine, 'beforeUpdate', function() {
 var ground = Bodies.rectangle(400, 610, 810, 60, {
     isStatic: true,
 });
-var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
 
 // var boxA = Bodies.rectangle(400, 200, 80, 80);
 // var boxB = Bodies.rectangle(450, 50, 80, 80);
@@ -108,43 +115,87 @@ var hitA = Bodies.circle(100, 200, 30, {float: true, isSensor: true});
 // Composite.add(comp, boxB);
 // Composites.chain(comp, 0.5, 0, -0.5, 0, { stiffness: 0.8, length: 50, render: { type: 'line' }});
 
-var bot = Bodies.rectangle(200, 570, 60, 40, {
-    render: {
-        sprite: {
-            strokeStyle: '#C44D58',
-            fillStyle: 'transparent',
-            lineWidth: 1
-        }
-    }
-});
+// var bot = Bodies.rectangle(200, 570, 60, 40, {
+//     render: {
+//         sprite: {
+//             strokeStyle: '#C44D58',
+//             fillStyle: 'transparent',
+//             lineWidth: 1
+//         }
+//     }
+// });
 
-var bot2 = Bodies.circle(200, 240, 30, {
-    render: {
-        strokeStyle: '#C44D58',
-        fillStyle: '#C44D58',
-        lineWidth: 1
-    }
-})
-
-World.add(world, [ground, bot, hitA, bot2]);
+// World.add(world, [ground, bot, hitA]);
+World.add(world, [ground, hitA]);
 
 
 //Shelves
-World.add(world, [
-    Bodies.rectangle(150, 60, 150, 13, { isStatic: true })
-]);
+var shelfHeight = 10;
+var shelves = [
+    {
+        x: 180,
+        y: 390
+    },
+    {
+        x: 400,
+        y: 380
+    },
+    {
+        x: 180,
+        y: 150
+    },
+    {
+        x: 400,
+        y: 150
+    }
+];
 
-World.add(world, [
-    Bodies.rectangle(350, 30, 150, 13, { isStatic: true })
-]);
-
-World.add(world, [
-    Bodies.rectangle(350, 90, 150, 13, { isStatic: true })
-]);
-
-World.add(world, [
-    Bodies.rectangle(350, 180, 150, 13, { isStatic: true })
-]);
+shelves.forEach(shelf => {
+    World.add(world, [
+        //shelf
+        Bodies.rectangle(shelf.x, shelf.y, 150, shelfHeight, {
+            isStatic: true,
+            render: {
+                sprite: {
+                    texture: './img/shelf.png',
+                    xScale: 0.7,
+                    yScale: 0.7,
+                    yOffset: -0.45
+                }
+            } 
+            
+        }),
+        //box
+        Bodies.rectangle(shelf.x - 30, (shelf.y - shelfHeight), 50, 50, {
+            render: {
+                sprite: {
+                    texture: './img/pi.png',
+                    xScale: 0.7,
+                    yScale: 0.7
+                }
+            } 
+        }),
+        Bodies.rectangle(shelf.x + 30, (shelf.y - shelfHeight), 50, 50, {
+            render: {
+                sprite: {
+                    texture: './img/piper.png',
+                    xScale: 0.7,
+                    yScale: 0.7
+                }
+            } 
+        }),
+        // top of the box triangle
+        Bodies.rectangle(shelf.x, (shelf.y - shelfHeight - 80), 50, 50, {
+            render: {
+                sprite: {
+                    texture: './img/sam.png',
+                    xScale: 0.7,
+                    yScale: 0.7
+                }
+            } 
+        })
+    ]);
+});
 
 
 
