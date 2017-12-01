@@ -59,6 +59,16 @@ let resetBot = true;
 
 var ground = Bodies.rectangle(285 + renderOffsetX, 610 + renderOffsetY, 160, 60, { isStatic: true });
 var respawnGround = Bodies.rectangle(400 + renderOffsetX, 800 + renderOffsetY, 10000, 60, { isStatic: true });
+var logo = Bodies.rectangle(630, 40, 100, 60, {
+    isStatic: true,
+    render: {
+        sprite: {
+            texture: './img/stemwars.png',
+            xScale: 0.8,
+            yScale: 0.8
+        }
+    } 
+});
 var banner = Bodies.rectangle(1050, 80, 100, 60, {
     isStatic: true,
     render: {
@@ -73,7 +83,7 @@ var banner = Bodies.rectangle(1050, 80, 100, 60, {
 var bot;
 var hitA = Bodies.circle(50, 50, 30, {float: true, isSensor: true});
 
-World.add(world, [ground, hitA, respawnGround, banner]);
+World.add(world, [ground, hitA, respawnGround, banner, logo]);
 
 Engine.run(engine);
 Render.run(render);
@@ -115,8 +125,8 @@ Events.on(engine, 'beforeUpdate', function() {
             render: {
                 sprite: {
                     texture: './img/kanano.png',
-                    xScale: 0.9,
-                    yScale: 0.9
+                    xScale: 0.85,
+                    yScale: 0.85
                 }
             } 
         });
